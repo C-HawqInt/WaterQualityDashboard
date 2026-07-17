@@ -1,0 +1,7 @@
+# Never commit the large merged export — it exceeds GitHub's 100 MB per-file limit
+# and the dashboard does not use it.
+master_wq.csv
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
