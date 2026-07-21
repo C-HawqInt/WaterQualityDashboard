@@ -822,6 +822,9 @@ async function doDownload(){
   const useYears=document.getElementById("dlYear").checked && state.years.length;
   const ysel=useYears? new Set(state.years): null;
   let csv="parameter,label,unit,station,date,value,latitude,longitude\n", n=0;
+  if((!state.metaById || state.metaById.size===0) && state.key){
+    await loadStationsMeta(state.key);
+  }
   for(const k of chosen){
     status.textContent=`Fetching ${state.params[k].label}…`;
     let m;
