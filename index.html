@@ -390,6 +390,7 @@ async function loadStationsMeta(key){
       n:+c[idx.n], date_min:c[idx.date_min], date_max:c[idx.date_max]
     })).filter(s=>s.station);
     state.nById = new Map(state.stationsMeta.map(s=>[s.station,s.n]));
+    state.metaById = new Map(state.stationsMeta.map(s=>[s.station,s]));
   }catch(e){
     ld.innerHTML = "Could not load station index."; return;
   }
@@ -820,7 +821,7 @@ async function doDownload(){
   if(!chosen.length){ status.textContent="Pick at least one parameter."; return; }
   const useYears=document.getElementById("dlYear").checked && state.years.length;
   const ysel=useYears? new Set(state.years): null;
-  let csv="parameter,label,unit,station,date,value\n", n=0;
+  let csv="parameter,label,unit,station,date,value,latitude,longitude\n", n=0;
   for(const k of chosen){
     status.textContent=`Fetching ${state.params[k].label}…`;
     let m;
@@ -829,7 +830,10 @@ async function doDownload(){
     const unit=(state.params[k].unit||"").replace(/,/g," ");
     stations.forEach(st=>{
       const rows=m.get(st); if(!rows) return;
-      rows.forEach(r=>{ if(ysel && !ysel.has(r.t.slice(0,4))) return; csv+=`${k},${label},${unit},${st},${r.t},${r.v}\n`; n++; });
+      const meta = state.metaById && state.metaById.get(st);
+      const lat = meta && isFinite(meta.lat) ? meta.lat : "";
+      const lon = meta && isFinite(meta.lon) ? meta.lon : "";
+      rows.forEach(r=>{ if(ysel && !ysel.has(r.t.slice(0,4))) return; csv+=`${k},${label},${unit},${st},${r.t},${r.v},${lat},${lon}\n`; n++; });
     });
   }
   if(!n){ status.textContent="No matching records for that selection."; return; }
